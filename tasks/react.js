@@ -10,7 +10,6 @@
 
 module.exports = function(grunt) {
 
-  var path = require('path');
   var transform = require('react-tools').transform;
 
   grunt.registerMultiTask('react', 'Compile Facebook React JSX templates into JavaScript', function() {
@@ -49,12 +48,11 @@ module.exports = function(grunt) {
         grunt.log.writeln('[react] Compiling ' + file.cyan + ' --> ' + destFile.cyan);
 
         try {
-          compiled.push(transform(grunt.file.read(file)));
+          compiled.push(transform(grunt.file.read(file), options));
           next();
         } catch (e) {
-          var error = grunt.log.wordlist(['[react] ' + e], { color: 'red' });
-          grunt.log.error(error);
-          nextFileObj(error);
+          grunt.event.emit('react.error', file, e);
+          grunt.fail.warn(e);
         }
       }, function () {
         grunt.file.write(destFile, compiled.join(grunt.util.normalizelf(grunt.util.linefeed)));
